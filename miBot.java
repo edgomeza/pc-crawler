@@ -3,6 +3,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+
+// Grupo 5 RIBW - Eduardo Gómez Almendral y Adrián Tercero Pérez
 public class miBot {
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {

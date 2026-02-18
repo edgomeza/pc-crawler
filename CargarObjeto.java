@@ -4,11 +4,11 @@ import java.util.*;
 public class CargarObjeto {
     // Devuelve el mapa recuperado del archivo serializado
     @SuppressWarnings("unchecked")
-    public Map<String, Integer> cargar(String nombreFichero) {
+    public Map<String, Ocurrencia> cargar(String nombreFichero) {
         try {
             FileInputStream fis = new FileInputStream(nombreFichero);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            Map<String, Integer> h = (Map<String, Integer>) ois.readObject();
+            Map<String, Ocurrencia> h = (Map<String, Ocurrencia>) ois.readObject();
             ois.close();
             return h;
         } catch (Exception e) { 

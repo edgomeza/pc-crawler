@@ -2,10 +2,10 @@ import java.io.*;
 import java.util.*;
 
 public class FichContPalabras {
-    private Map<String, Integer> map;
+    private Map<String, Ocurrencia> map;
 
     public FichContPalabras() {
-        this.map = new TreeMap<>();
+        this.map = new TreeMap<String, Ocurrencia>();
     }
 
     // Método para procesar un archivo y llenar el mapa en memoria
@@ -17,7 +17,13 @@ public class FichContPalabras {
             StringTokenizer st = new StringTokenizer(linea, " ,.:;(){}!°?\t''%/|[]<=>&#+*$-¨^~");
             while (st.hasMoreTokens()) {
                 String s = st.nextToken();
-                map.put(s, map.getOrDefault(s, 0) + 1);
+                Ocurrencia oc = map.get(s);
+                if (oc == null) {
+                    oc = new Ocurrencia();
+                    map.put(s, oc);
+                }
+                oc.incrementarFtg();
+                oc.agregarFicheroPadre(fichEntrada);
             }
         }
         br.close();
@@ -26,12 +32,12 @@ public class FichContPalabras {
     // Método para exportar los resultados a un archivo de texto crear fichS.txt
     public void exportarResultados(String fichSalida) throws IOException {
         PrintWriter pr = new PrintWriter(new FileWriter(fichSalida));
-        for (Map.Entry<String, Integer> entry : map.entrySet()) {
-            pr.println(entry.getKey() + " : " + entry.getValue());
+        for (String entry : map.keySet()) {
+            pr.println(entry + " : " + map.get(entry));
         }
         pr.close();
     }
 
-    public Map<String, Integer> getMap() { return map; }
-    public void setMap(Map<String, Integer> map) { this.map = map; }
+    public Map<String, Ocurrencia> getMap() { return map; }
+    public void setMap(Map<String, Ocurrencia> map) { this.map = map; }
 }

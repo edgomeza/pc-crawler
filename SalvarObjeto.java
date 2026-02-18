@@ -3,7 +3,7 @@ import java.util.*;
 
 public class SalvarObjeto {
     // Recibe un mapa y el nombre del archivo como parámetros
-    public void guardar(Map<String, Integer> mapa, String nombreFichero) {
+    public void guardar(Map<String,Ocurrencia> mapa, String nombreFichero) {
         try {
             FileOutputStream fos = new FileOutputStream(nombreFichero);
             ObjectOutputStream oos = new ObjectOutputStream(fos);

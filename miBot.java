@@ -36,7 +36,7 @@ public class miBot {
             } else {
                 // Si es un archivo, procesamos sus palabras
                 System.out.println("Procesando: " + actual.getName());
-                fcp.procesarArchivo(actual.getAbsolutePath());
+                fcp.procesarArchivo(actual.getPath());
             }
         }
 
@@ -46,8 +46,8 @@ public class miBot {
         if (arbolFile.exists()) {
             // Si el archivo existe, lo cargamos para comparar
             System.out.println("El archivo fI.dir existe. Comprobando contenido...");
-            Map<String, Integer> mapaAntiguo = co.cargar("fI.dir");
-            Map<String, Integer> mapaNuevo = fcp.getMap();
+            Map<String, Ocurrencia> mapaAntiguo = co.cargar("fI.dir");
+            Map<String,Ocurrencia> mapaNuevo = fcp.getMap();
 
             // Comparamos el contenido de los mapas
             if (mapaAntiguo != null && mapaNuevo.equals(mapaAntiguo)) {

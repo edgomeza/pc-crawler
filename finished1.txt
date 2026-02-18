@@ -1,16 +1,16 @@
-Este : 1
-Hola : 2
-La : 2
-Mi : 2
-cosa : 1
-es : 3
-fichero : 1
-la : 2
-mamá : 4
-mejor : 2
-mi : 2
-mundo : 1
-mundoooooo : 1
-mía : 2
-otra : 1
-otro : 1
+Este : {.\DIR1\DIR2\fich2.txt=1} (ftg: 1)
+Hola : {.\DIR1\DIR2\fich1.txt=1, .\DIR1\DIR3\fich4.txt=1} (ftg: 2)
+La : {.\DIR1\fich1.txt=1, .\DIR1\fich3.txt=1} (ftg: 2)
+Mi : {.\DIR1\fich1.txt=1, .\DIR1\fich3.txt=1} (ftg: 2)
+cosa : {.\DIR1\fich2.txt=1} (ftg: 1)
+es : {.\DIR1\DIR2\fich2.txt=1, .\DIR1\fich1.txt=1, .\DIR1\fich3.txt=1} (ftg: 3)
+fichero : {.\DIR1\DIR2\fich2.txt=1} (ftg: 1)
+la : {.\DIR1\fich1.txt=1, .\DIR1\fich3.txt=1} (ftg: 2)
+mamá : {.\DIR1\fich1.txt=2, .\DIR1\fich3.txt=2} (ftg: 4)
+mejor : {.\DIR1\fich1.txt=1, .\DIR1\fich3.txt=1} (ftg: 2)
+mi : {.\DIR1\fich1.txt=1, .\DIR1\fich3.txt=1} (ftg: 2)
+mundo : {.\DIR1\DIR2\fich1.txt=1} (ftg: 1)
+mundoooooo : {.\DIR1\DIR3\fich4.txt=1} (ftg: 1)
+mía : {.\DIR1\fich1.txt=1, .\DIR1\fich3.txt=1} (ftg: 2)
+otra : {.\DIR1\fich2.txt=1} (ftg: 1)
+otro : {.\DIR1\DIR2\fich2.txt=1} (ftg: 1)

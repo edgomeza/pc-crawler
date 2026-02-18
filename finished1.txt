@@ -1,2 +1,16 @@
+Este : 1
+Hola : 2
+La : 2
+Mi : 2
 cosa : 1
+es : 3
+fichero : 1
+la : 2
+mamá : 4
+mejor : 2
+mi : 2
+mundo : 1
+mundoooooo : 1
+mía : 2
 otra : 1
+otro : 1

@@ -1,9 +1,3 @@
-/*
- * SalvarObjeto.java: Guarda un objeto serializable en un fichero
- * (i) Felix R. Rguez., EPCC, Universidad de Extremadura, 2009-23
- * http://madiba.unex.es/
- */
-
 import java.io.*;
 import java.util.*;
 

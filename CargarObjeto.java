@@ -1,9 +1,3 @@
-/*
- * CargarObjeto.java: Lee un objeto serializable, previamente salvado en un fichero, a memoria
- * (i) Felix R. Rguez., EPCC, Universidad de Extremadura, 2009-23
- * http://madiba.unex.es/
- */
-
 import java.io.*;
 import java.util.*;
 

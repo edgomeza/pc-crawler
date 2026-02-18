@@ -41,32 +41,27 @@ public class miBot {
         }
 
         File arbolFile = new File("fI.dir");
-        boolean guardar = false;
 
         if (arbolFile.exists()) {
             // Si el archivo existe, lo cargamos para comparar
             System.out.println("El archivo fI.dir existe. Comprobando contenido...");
             Map<String, Ocurrencia> mapaAntiguo = co.cargar("fI.dir");
-            Map<String,Ocurrencia> mapaNuevo = fcp.getMap();
+            Map<String, Ocurrencia> mapaNuevo = fcp.getMap();
 
             // Comparamos el contenido de los mapas
             if (mapaAntiguo != null && mapaNuevo.equals(mapaAntiguo)) {
                 System.out.println("El contenido del mapa actual es igual al guardado en fI.dir.");
-                guardar = false;
-            } else {
-                guardar = true;
-            }
+                System.out.println("Finalizando bot");
+                return;
+            } 
         } else {
             // Si no existe, debemos crearlo
             System.out.println("El archivo fI.dir no existe. Se creará uno nuevo.");
-            guardar = true;
         }
 
         // Salvar el mapa resultante en el fichero serializado
-        if (guardar) {
-            so.guardar(fcp.getMap(), "fI.dir");
-            System.out.println("Proceso completado. Mapa guardado en fI.dir");
-        }
+        so.guardar(fcp.getMap(), "fI.dir");
+        System.out.println("Proceso completado. Mapa guardado en fI.dir");
 
         // Exportar los resultados a un archivo de texto
         fcp.exportarResultados("finished1.txt");

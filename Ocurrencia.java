@@ -3,18 +3,18 @@ import java.util.TreeMap;
 
 public class Ocurrencia implements java.io.Serializable, Comparable<Ocurrencia> {
     private Integer ftg;
-    private Map<String, Integer> map;
+    private Map<Integer, Integer> map;
 
     public Ocurrencia() {
         this.ftg = 0;
-        this.map = new TreeMap<String, Integer>();
+        this.map = new TreeMap<Integer, Integer>();
     }
 
     public Integer getFtg() {
         return ftg;
     }
 
-    public Map<String, Integer> getMap() {
+    public Map<Integer, Integer> getMap() {
         return map;
     }
 
@@ -22,8 +22,8 @@ public class Ocurrencia implements java.io.Serializable, Comparable<Ocurrencia> 
         this.ftg++;
     }
 
-    public void agregarFicheroPadre(String nombreFichero) {
-        this.map.put(nombreFichero, this.map.getOrDefault(nombreFichero, 0) + 1);
+    public void agregarFicheroPadre(Integer idFichero) {
+        this.map.put(idFichero, this.map.getOrDefault(idFichero, 0) + 1);
     }
 
     @Override

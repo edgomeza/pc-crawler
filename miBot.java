@@ -1,7 +1,12 @@
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Scanner;
 
 
 // Grupo 5 RIBW - Eduardo Gómez Almendral y Adrián Tercero Pérez
@@ -16,6 +21,10 @@ public class miBot {
         FichContPalabras fcp = new FichContPalabras();
         SalvarObjeto so = new SalvarObjeto();
         CargarObjeto co = new CargarObjeto();
+        MotorBusqueda motor = new MotorBusqueda();
+
+        Map<String, Integer> longitudesDocs = new HashMap<>();
+        List<String> listaURLs = new ArrayList<>();
 
         // Creamos la cola en miBot 
         Queue<File> colaProcesamiento = new LinkedList<>();
@@ -37,8 +46,11 @@ public class miBot {
                 }
             } else {
                 // Si es un archivo, procesamos sus palabras
+                listaURLs.add(actual.getPath());
+                int docId = listaURLs.size();
                 System.out.println("Procesando: " + actual.getName());
-                fcp.procesarArchivo(actual.getPath());
+                int totalPalabras = fcp.procesarArchivo(actual.getPath(), docId-1);
+                longitudesDocs.put(actual.getPath(), totalPalabras);
             }
         }
 
@@ -53,20 +65,50 @@ public class miBot {
             // Comparamos el contenido de los mapas
             if (mapaAntiguo != null && mapaNuevo.equals(mapaAntiguo)) {
                 System.out.println("El contenido del mapa actual es igual al guardado en fI.dir.");
-                System.out.println("Finalizando bot");
-                return;
             } 
         } else {
             // Si no existe, debemos crearlo
             System.out.println("El archivo fI.dir no existe. Se creará uno nuevo.");
+            
+            // Salvar el mapa resultante en el fichero serializado
+            so.guardar(fcp.getMap(), "fI.dir");
+            System.out.println("Proceso completado. Mapa guardado en fI.dir");
         }
-
-        // Salvar el mapa resultante en el fichero serializado
-        so.guardar(fcp.getMap(), "fI.dir");
-        System.out.println("Proceso completado. Mapa guardado en fI.dir");
 
         // Exportar los resultados a un archivo de texto
         fcp.exportarResultados("finished1.txt");
         System.out.println("Resultados de texto exportados a finished1.txt");
+
+        Scanner entradaUsuario = new Scanner(System.in);
+        System.out.println("-----------------------------------");
+        System.out.println("Términos disponibles en el índice:");
+        System.out.println(fcp.getMap().keySet());
+
+        while (true) {
+            System.out.println("Introduce el/los término/s a buscar (o 'salir'):");
+            String query = entradaUsuario.nextLine();
+            
+            if (query.equalsIgnoreCase("salir")) break;
+            if (query.trim().isEmpty()) continue;
+
+            List<String> terminosConsulta = Arrays.asList(query.split("\\s+"));
+            
+            // Llamada al MotorBusqueda
+            List<Map.Entry<Integer, Double>> ranking = motor.rankDocuments(terminosConsulta, fcp.getMap(), longitudesDocs);
+
+            System.out.println("Resultados para: '" + query + "'");
+            if (ranking.isEmpty()) {
+                System.out.println("No se encontraron coincidencias.");
+            } else {
+                int i = 1;
+                for (Map.Entry<Integer, Double> res : ranking) {
+                    System.out.printf("%d. %s (Score: %.4f)\n", i++, listaURLs.get(res.getKey()), res.getValue());
+                    if (i > 10) break;
+                }
+            }
+            System.out.println();
+        }
+
+        entradaUsuario.close();
     }
 }

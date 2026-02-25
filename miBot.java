@@ -84,7 +84,7 @@ public class miBot {
         System.out.println(fcp.getMap().keySet());
 
         while (true) {
-            String query = System.console().readLine("Introduce un término: ").toLowerCase();
+            String query = System.console().readLine("Introduce un término (o salir): ").toLowerCase();
             query = Normalizer.normalize(query, Normalizer.Form.NFD);
             query = query.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
             

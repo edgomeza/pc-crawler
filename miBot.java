@@ -1,4 +1,5 @@
 import java.io.File;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -79,14 +80,16 @@ public class miBot {
         fcp.exportarResultados("finished1.txt");
         System.out.println("Resultados de texto exportados a finished1.txt");
 
-        Scanner entradaUsuario = new Scanner(System.in);
+        Scanner entradaUsuario = new Scanner(System.in, "UTF-8");
         System.out.println("-----------------------------------");
         System.out.println("Términos disponibles en el índice:");
         System.out.println(fcp.getMap().keySet());
 
         while (true) {
             System.out.println("Introduce el/los término/s a buscar (o 'salir'):");
-            String query = entradaUsuario.nextLine();
+            String query = entradaUsuario.nextLine().toLowerCase();
+            query = Normalizer.normalize(query, Normalizer.Form.NFD);
+            query = query.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
             
             if (query.equalsIgnoreCase("salir")) break;
             if (query.trim().isEmpty()) continue;

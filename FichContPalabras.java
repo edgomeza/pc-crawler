@@ -1,4 +1,5 @@
 import java.io.*;
+import java.text.Normalizer;
 import java.util.*;
 
 public class FichContPalabras {
@@ -16,7 +17,9 @@ public class FichContPalabras {
         while ((linea = br.readLine()) != null) {
             StringTokenizer st = new StringTokenizer(linea, " ,.:;(){}!°?\t''%/|[]<=>&#+*$-¨^~");
             while (st.hasMoreTokens()) {
-                String s = st.nextToken();
+                String s = st.nextToken().toLowerCase();
+                s = Normalizer.normalize(s, Normalizer.Form.NFD);
+                s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
                 contadorPalabras++;
                 Ocurrencia oc = map.get(s);
                 if (oc == null) {

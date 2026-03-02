@@ -11,6 +11,17 @@ import java.util.Queue;
 
 // Grupo 5 RIBW - Eduardo Gómez Almendral y Adrián Tercero Pérez
 public class miBot {
+
+    private static boolean esFicheroTexto(File f) {
+        String nombre = f.getName().toLowerCase();
+        return nombre.endsWith(".txt")
+            || nombre.endsWith(".csv")
+            || nombre.endsWith(".xml")
+            || nombre.endsWith(".html")
+            || nombre.endsWith(".htm")
+            || nombre.endsWith(".java")
+            || nombre.endsWith(".log");
+    }
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
             System.out.println("ERROR. Ejecutar: >java miBot nombre_archivo");
@@ -20,7 +31,7 @@ public class miBot {
         ListIt li = new ListIt();
         FichContPalabras fcp = new FichContPalabras();
         SalvarObjeto so = new SalvarObjeto();
-        CargarObjeto co = new CargarObjeto();
+        //CargarObjeto co = new CargarObjeto();
         MotorBusqueda motor = new MotorBusqueda();
 
         Map<String, Integer> longitudesDocs = new HashMap<>();
@@ -44,13 +55,14 @@ public class miBot {
                         colaProcesamiento.add(h); // Añadimos subcarpetas o archivos a la cola
                     }
                 }
-            } else {
-                // Si es un archivo, procesamos sus palabras
+            } else if (esFicheroTexto(actual)) { 
                 listaURLs.add(actual.getPath());
                 int docId = listaURLs.size();
                 System.out.println("Procesando: " + actual.getName());
-                int totalPalabras = fcp.procesarArchivo(actual.getPath(), docId-1);
+                int totalPalabras = fcp.procesarArchivo(actual.getPath(), docId - 1);
                 longitudesDocs.put(actual.getPath(), totalPalabras);
+            } else {
+                System.out.println("Ignorado (no es texto): " + actual.getName());
             }
         }
 
@@ -59,21 +71,18 @@ public class miBot {
         if (arbolFile.exists()) {
             // Si el archivo existe, lo cargamos para comparar
             System.out.println("El archivo fI.dir existe. Comprobando contenido...");
-            Map<String, Ocurrencia> mapaAntiguo = co.cargar("fI.dir");
-            Map<String, Ocurrencia> mapaNuevo = fcp.getMap();
+            //Map<String, Ocurrencia> mapaAntiguo = (Map<String, Ocurrencia>) co.cargar("fI.dir", CargarObjeto.TIPO_MAPA);
+            //List<String> fatAntigua = (List<String>) co.cargar("fI_fat.dir", CargarObjeto.TIPO_LISTA);
 
-            // Comparamos el contenido de los mapas
-            if (mapaAntiguo != null && mapaNuevo.equals(mapaAntiguo)) {
-                System.out.println("El contenido del mapa actual es igual al guardado en fI.dir.");
-            } 
         } else {
             // Si no existe, debemos crearlo
             System.out.println("El archivo fI.dir no existe. Se creará uno nuevo.");
-            
-            // Salvar el mapa resultante en el fichero serializado
-            so.guardar(fcp.getMap(), "fI.dir");
-            System.out.println("Proceso completado. Mapa guardado en fI.dir");
         }
+
+        // Salvar el mapa resultante en el fichero serializado
+        so.guardar(fcp.getMap(), "fI.dir");
+        so.guardar(listaURLs, "fI_fat.dir");
+        System.out.println("Proceso completado. Mapa guardado en fI.dir");
 
         // Exportar los resultados a un archivo de texto
         fcp.exportarResultados("finished1.txt");

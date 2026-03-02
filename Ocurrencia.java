@@ -1,7 +1,7 @@
 import java.util.Map;
 import java.util.TreeMap;
 
-public class Ocurrencia implements java.io.Serializable, Comparable<Ocurrencia> {
+public class Ocurrencia implements java.io.Serializable {
     private Integer ftg;
     private Map<Integer, Integer> map;
 
@@ -24,11 +24,6 @@ public class Ocurrencia implements java.io.Serializable, Comparable<Ocurrencia> 
 
     public void agregarFicheroPadre(Integer idFichero) {
         this.map.put(idFichero, this.map.getOrDefault(idFichero, 0) + 1);
-    }
-
-    @Override
-    public int compareTo(Ocurrencia o) {
-        return this.ftg.compareTo(o.getFtg());
     }
 
     @Override

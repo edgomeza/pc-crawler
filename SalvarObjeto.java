@@ -1,12 +1,11 @@
 import java.io.*;
-import java.util.*;
 
 public class SalvarObjeto {
-    public void guardar(Map<String,Ocurrencia> mapa, String nombreFichero) {
+    public void guardar(Object o, String nombreFichero) {
         try {
             FileOutputStream fos = new FileOutputStream(nombreFichero);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(mapa);
+            oos.writeObject(o);
             oos.close();
         } catch (Exception e) { 
             System.out.println("Error al salvar: " + e); 

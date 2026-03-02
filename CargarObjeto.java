@@ -2,17 +2,29 @@ import java.io.*;
 import java.util.*;
 
 public class CargarObjeto {
-    // Devuelve el mapa recuperado del archivo serializado
+
+    public static final int TIPO_MAPA = 1;
+    public static final int TIPO_LISTA = 2;
+
     @SuppressWarnings("unchecked")
-    public Map<String, Ocurrencia> cargar(String nombreFichero) {
+    public Object cargar(String nombreFichero, int tipo) {
         try {
             FileInputStream fis = new FileInputStream(nombreFichero);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            Map<String, Ocurrencia> h = (Map<String, Ocurrencia>) ois.readObject();
+            Object obj = ois.readObject();
             ois.close();
-            return h;
-        } catch (Exception e) { 
-            System.out.println("Error al cargar: " + e); 
+
+            switch (tipo) {
+                case TIPO_MAPA:
+                    return (Map<String, Ocurrencia>) obj;
+                case TIPO_LISTA:
+                    return (List<String>) obj;
+                default:
+                    System.out.println("Tipo desconocido: " + tipo);
+                    return null;
+            }
+        } catch (Exception e) {
+            System.out.println("Error al cargar: " + e);
             return null;
         }
     }

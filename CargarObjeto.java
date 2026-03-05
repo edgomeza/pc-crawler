@@ -5,6 +5,7 @@ public class CargarObjeto {
 
     public static final int TIPO_MAPA = 1;
     public static final int TIPO_LISTA = 2;
+    public static final int TIPO_THESAURO = 3;
 
     @SuppressWarnings("unchecked")
     public Object cargar(String nombreFichero, int tipo) {
@@ -15,10 +16,12 @@ public class CargarObjeto {
             ois.close();
 
             switch (tipo) {
-                case TIPO_MAPA:
+                case 1:
                     return (Map<String, Ocurrencia>) obj;
-                case TIPO_LISTA:
+                case 2:
                     return (List<String>) obj;
+                case 3:
+                    return (Map<String, Set<String>>) obj;
                 default:
                     System.out.println("Tipo desconocido: " + tipo);
                     return null;

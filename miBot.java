@@ -1,12 +1,12 @@
 import java.io.File;
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 
 // Grupo 5 RIBW - Eduardo Gómez Almendral y Adrián Tercero Pérez
@@ -31,8 +31,9 @@ public class miBot {
         ListIt li = new ListIt();
         FichContPalabras fcp = new FichContPalabras();
         SalvarObjeto so = new SalvarObjeto();
-        //CargarObjeto co = new CargarObjeto();
+        CargarObjeto co = new CargarObjeto();
         MotorBusqueda motor = new MotorBusqueda();
+        Thesauro thesauro = new Thesauro();
 
         Map<String, Integer> longitudesDocs = new HashMap<>();
         List<String> listaURLs = new ArrayList<>();
@@ -40,6 +41,16 @@ public class miBot {
         // Creamos la cola en miBot 
         Queue<File> colaProcesamiento = new LinkedList<>();
         File inicial = new File(args[0]);
+        File thesauroFile = new File("thesauro.set");
+
+        if (li.esLegible(thesauroFile)) {
+            Map<String, Set<String>> thesauroMap = (Map<String, Set<String>>) co.cargar("thesauro.set", 1);
+            thesauro.setMap(thesauroMap);
+        }
+        else {
+            thesauro.cargarThesauro("thesauro_ES.txt");
+            so.guardar(thesauro.getMap(), "thesauro.set");
+        }
 
         if (li.esLegible(inicial)) {
             colaProcesamiento.add(inicial);
@@ -59,7 +70,7 @@ public class miBot {
                 listaURLs.add(actual.getPath());
                 int docId = listaURLs.size();
                 System.out.println("Procesando: " + actual.getName());
-                int totalPalabras = fcp.procesarArchivo(actual.getPath(), docId - 1);
+                int totalPalabras = fcp.procesarArchivo(actual.getPath(), docId - 1, thesauro);
                 longitudesDocs.put(actual.getPath(), totalPalabras);
             } else {
                 System.out.println("Ignorado (no es texto): " + actual.getName());
@@ -69,10 +80,10 @@ public class miBot {
         File arbolFile = new File("fI.dir");
 
         if (arbolFile.exists()) {
-            // Si el archivo existe, lo cargamos para comparar
+            // Si el archivo existe
             System.out.println("El archivo fI.dir existe. Comprobando contenido...");
-            //Map<String, Ocurrencia> mapaAntiguo = (Map<String, Ocurrencia>) co.cargar("fI.dir", CargarObjeto.TIPO_MAPA);
-            //List<String> fatAntigua = (List<String>) co.cargar("fI_fat.dir", CargarObjeto.TIPO_LISTA);
+            //Map<String, Ocurrencia> mapaAntiguo = (Map<String, Ocurrencia>) co.cargar("fI.dir", 1);
+            //List<String> fatAntigua = (List<String>) co.cargar("fI_fat.dir", 2);
 
         } else {
             // Si no existe, debemos crearlo
@@ -99,13 +110,10 @@ public class miBot {
             
             if (query.equalsIgnoreCase("salir")) break;
             if (query.trim().isEmpty()) continue;
-
-            List<String> terminosConsulta = Arrays.asList(query.split("\\s+"));
             
             // Llamada al MotorBusqueda
-            List<Map.Entry<Integer, Double>> ranking = motor.rankDocuments(terminosConsulta, fcp.getMap(), longitudesDocs);
+            List<Map.Entry<Integer, Double>> ranking = motor.rankDocuments(query, fcp.getMap(), longitudesDocs, thesauro);
 
-            System.out.println("Resultados para: '" + query + "'");
             if (ranking.isEmpty()) {
                 System.out.println("No se encontraron coincidencias.");
             } else {

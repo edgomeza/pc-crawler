@@ -10,7 +10,7 @@ public class FichContPalabras {
     }
 
     // Método para procesar un archivo y llenar el mapa en memoria
-    public int procesarArchivo(String fichEntrada, Integer idDocument) throws IOException {
+    public int procesarArchivo(String fichEntrada, Integer idDocument, Thesauro thesauro) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(fichEntrada));
         String linea;
         int contadorPalabras = 0;
@@ -20,14 +20,16 @@ public class FichContPalabras {
                 String s = st.nextToken().toLowerCase();
                 s = Normalizer.normalize(s, Normalizer.Form.NFD);
                 s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-                contadorPalabras++;
-                Ocurrencia oc = map.get(s);
-                if (oc == null) {
-                    oc = new Ocurrencia();
-                    map.put(s, oc);
+                if (thesauro.tieneSinonimos(s)) {
+                    contadorPalabras++;
+                    Ocurrencia oc = map.get(s);
+                    if (oc == null) {
+                        oc = new Ocurrencia();
+                        map.put(s, oc);
+                    }
+                    oc.incrementarFtg();
+                    oc.agregarFicheroPadre(idDocument);
                 }
-                oc.incrementarFtg();
-                oc.agregarFicheroPadre(idDocument);
             }
         }
         br.close();

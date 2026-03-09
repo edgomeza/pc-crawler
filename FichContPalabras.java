@@ -36,11 +36,28 @@ public class FichContPalabras {
         return contadorPalabras;
     }
 
-    // Método para exportar los resultados a un archivo de texto crear fichS.txt
-    public void exportarResultados(String fichSalida) throws IOException {
+    // Método para exportar los resultados a un archivo de texto crear finished1.txt
+    public void exportarResultados(String fichSalida, List<String> listaURLs) throws IOException {
         PrintWriter pr = new PrintWriter(new FileWriter(fichSalida));
-        for (String entry : map.keySet()) {
-            pr.println(entry + " : " + map.get(entry));
+        for (String termino : map.keySet()) {
+            Ocurrencia oc = map.get(termino);
+        
+            pr.print(termino + " -> Aparece en: ");
+            
+            // StringBuilder para concatenar todas las rutas de forma limpia
+            StringBuilder detalles = new StringBuilder();
+            
+            // Recorremos el mapa interno de la ocurrencia
+            for (Map.Entry<Integer, Integer> entrada : oc.getMap().entrySet()) {
+                int docId = entrada.getKey();
+                int frecuencia = entrada.getValue();
+                
+                String pathReal = listaURLs.get(docId);
+                detalles.append("[").append(pathReal).append(" (").append(frecuencia).append(" veces)] ");
+            }
+            
+            // Escribimos la línea completa en el fichero
+            pr.println(detalles.toString() + " | Frecuencia total: " + oc.getFtg());
         }
         pr.close();
     }

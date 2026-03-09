@@ -44,7 +44,7 @@ public class miBot {
         File thesauroFile = new File("thesauro.set");
 
         if (li.esLegible(thesauroFile)) {
-            Map<String, Set<String>> thesauroMap = (Map<String, Set<String>>) co.cargar("thesauro.set", 1);
+            Map<String, Set<String>> thesauroMap = (Map<String, Set<String>>) co.cargar("thesauro.set", 3);
             thesauro.setMap(thesauroMap);
         }
         else {
@@ -84,6 +84,7 @@ public class miBot {
             System.out.println("El archivo fI.dir existe. Comprobando contenido...");
             //Map<String, Ocurrencia> mapaAntiguo = (Map<String, Ocurrencia>) co.cargar("fI.dir", 1);
             //List<String> fatAntigua = (List<String>) co.cargar("fI_fat.dir", 2);
+            //Map<String, Integer> longitudesDocs = (Map<String, Integer>) co.cargar("fI_long.dir", 4);
 
         } else {
             // Si no existe, debemos crearlo
@@ -93,23 +94,32 @@ public class miBot {
         // Salvar el mapa resultante en el fichero serializado
         so.guardar(fcp.getMap(), "fI.dir");
         so.guardar(listaURLs, "fI_fat.dir");
+        so.guardar(longitudesDocs, "fI_long.dir");
         System.out.println("Proceso completado. Mapa guardado en fI.dir");
 
         // Exportar los resultados a un archivo de texto
-        fcp.exportarResultados("finished1.txt");
+        fcp.exportarResultados("finished1.txt", listaURLs);
+        System.out.println("----------------------------------------------");
         System.out.println("Resultados de texto exportados a finished1.txt");
-
-        System.out.println("-----------------------------------");
+        System.out.println("----------------------------------------------");
         System.out.println("Términos disponibles en el índice:");
         System.out.println(fcp.getMap().keySet());
 
+        System.out.println("\nPara poder salir, introduce '/salir' o deja la línea en blanco:");
         while (true) {
-            String query = System.console().readLine("Introduce un término (o salir): ").toLowerCase();
+            String query = System.console().readLine("Introduce un término: ").toLowerCase();
             query = Normalizer.normalize(query, Normalizer.Form.NFD);
             query = query.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
             
-            if (query.equalsIgnoreCase("salir")) break;
-            if (query.trim().isEmpty()) continue;
+            if (query.equalsIgnoreCase("/salir")){
+                System.out.println("Cerrando..."); 
+                break;
+            }
+
+            if (query.trim().isEmpty()){
+                System.out.println("Cerrando..."); 
+                break;
+            }
             
             // Llamada al MotorBusqueda
             List<Map.Entry<Integer, Double>> ranking = motor.rankDocuments(query, fcp.getMap(), longitudesDocs, thesauro);
@@ -124,6 +134,7 @@ public class miBot {
                 }
             }
             System.out.println();
+            System.out.println("----------------------------------------------");
         }
     }
 }

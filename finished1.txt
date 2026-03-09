@@ -1,4 +1,0 @@
-este : {4=1} (ftg=1)
-fichero : {4=1} (ftg=1)
-mama : {0=2, 2=2} (ftg=4)
-mundo : {3=1} (ftg=1)

@@ -1,11 +1,13 @@
 import java.io.File;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Scanner;
 import java.util.Set;
 
 
@@ -106,8 +108,10 @@ public class miBot {
         System.out.println(fcp.getMap().keySet());
 
         System.out.println("\nPara poder salir, introduce '/salir' o deja la línea en blanco:");
+        Scanner scanner = new Scanner(System.in);
         while (true) {
-            String query = System.console().readLine("Introduce un término: ").toLowerCase();
+            System.out.print("Introduce término/s: ");
+            String query = scanner.nextLine().toLowerCase();
             query = Normalizer.normalize(query, Normalizer.Form.NFD);
             query = query.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
             
@@ -121,8 +125,9 @@ public class miBot {
                 break;
             }
             
+            List<String> terminosConsulta = Arrays.asList(query.trim().split("\\s+"));
             // Llamada al MotorBusqueda
-            List<Map.Entry<Integer, Double>> ranking = motor.rankDocuments(query, fcp.getMap(), longitudesDocs, thesauro);
+            List<Map.Entry<Integer, Double>> ranking = motor.rankDocuments(terminosConsulta, fcp.getMap(), longitudesDocs, thesauro);
 
             if (ranking.isEmpty()) {
                 System.out.println("No se encontraron coincidencias.");
@@ -136,5 +141,6 @@ public class miBot {
             System.out.println();
             System.out.println("----------------------------------------------");
         }
+        scanner.close();
     }
 }

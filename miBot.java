@@ -3,6 +3,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +112,8 @@ public class miBot {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print("Introduce término/s: ");
-            String query = scanner.nextLine().toLowerCase();
+            String queryOriginal = scanner.nextLine();
+            String query = queryOriginal.toLowerCase();
             query = Normalizer.normalize(query, Normalizer.Form.NFD);
             query = query.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
 
@@ -124,10 +126,27 @@ public class miBot {
                 System.out.println("Cerrando...");
                 break;
             }
-            
+
             List<String> terminosConsulta = Arrays.asList(query.trim().split("\\s+"));
-            // Llamada al MotorBusqueda
-            List<Map.Entry<Integer, Double>> ranking = motor.rankDocuments(terminosConsulta, fcp.getMap(), longitudesDocs, thesauro);
+
+            // Ranking para los términos exactos (sin sinónimos)
+            List<Map.Entry<Integer, Double>> rankingTermino = motor.rankDocumentosSoloTerminos(terminosConsulta, fcp.getMap(), longitudesDocs);
+
+            // Sinónimos de todos los términos buscados
+            Set<String> sinonimos = new HashSet<>();
+            for (String t : terminosConsulta) {
+                Set<String> s = thesauro.getSinonimos(t);
+                if (s != null) sinonimos.addAll(s);
+            }
+            sinonimos.removeAll(terminosConsulta);
+
+            // Ranking para los sinónimos (sin los términos originales)
+            List<Map.Entry<Integer, Double>> rankingSinonimos = motor.rankDocumentosSinonimos(terminosConsulta, fcp.getMap(), longitudesDocs, thesauro);
+
+            System.out.println();
+            System.out.println("==============================================");
+            System.out.println("  Resultados para: \"" + queryOriginal + "\"");
+            System.out.println("==============================================");
 
             if (rankingTermino.isEmpty()) {
                 System.out.println("  No se encontraron resultados para \"" + queryOriginal + "\".");
@@ -139,7 +158,7 @@ public class miBot {
                 }
             }
 
-            if (sinonimos != null && !sinonimos.isEmpty()) {
+            if (!sinonimos.isEmpty()) {
                 System.out.println();
                 System.out.println("----------------------------------------------");
                 System.out.println("  Quizás también te interese (sinónimos de \"" + queryOriginal + "\"):");

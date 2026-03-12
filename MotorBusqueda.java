@@ -2,47 +2,22 @@ import java.util.*;
 
 public class MotorBusqueda {
 
-    /**
-     * Método privado que calcula el ranking de documentos para un conjunto de términos.
-     */
-    public List<Map.Entry<Integer, Double>> rankDocuments(List<String> terminosConsulta, Map<String, Ocurrencia> indice, Map<String, Integer> longitudesDocs, Thesauro thesauro) {
-        
-        // Mapa para acumular la puntuación de cada documento
+    private List<Map.Entry<Integer, Double>> calcularRanking(Set<String> terminos, Map<String, Ocurrencia> indice, Map<String, Integer> longitudesDocs) {
         Map<Integer, Double> scores = new HashMap<>();
-            
-        for (String terminoUsuario : terminosConsulta) {
-            // Creamos un grupo de búsqueda: El término original + sus sinónimos
-            Set<String> grupoBusqueda = new HashSet<>();
-            grupoBusqueda.add(terminoUsuario);
-            
-            Set<String> sinonimos = thesauro.getSinonimos(terminoUsuario);
-            grupoBusqueda.addAll(sinonimos);
 
-            for (String termino : grupoBusqueda) {          
-                // Si el término existe en el índice
-                if (indice.containsKey(termino)) {
-                    Ocurrencia oc = indice.get(termino);
-                    // Calculamos el peso del término: a mayor TTF, menor peso
-                    double ttf = oc.getFtg();
-                    double pesoTermino = 1.0 / Math.log(1 + ttf);
+        for (String termino : terminos) {
+            if (indice.containsKey(termino)) {
+                Ocurrencia oc = indice.get(termino);
+                double ttf = oc.getFtg();
+                double pesoTermino = 1.0 / Math.log(1 + ttf);
 
-                    // Iteramos sobre los documentos donde aparece este término
-                    for (Map.Entry<Integer, Integer> entradaDoc : oc.getMap().entrySet()) {
-                        Integer idDocumento = entradaDoc.getKey();
-                        double tf = entradaDoc.getValue(); // Frecuencia del término en este doc
-                        
-                        // Obtenemos la longitud total del documento
-                        double longitudDoc = longitudesDocs.getOrDefault(idDocumento, 1);
-
-                        // Normalización: TF / L_d
-                        double tfNormalizado = tf / longitudDoc;
-
-                        // Cálculo parcial para este término y este documento
-                        double scoreParcial = tfNormalizado * pesoTermino;
-
-                        // Acumulamos el score en el documento correspondiente
-                        scores.put(idDocumento, scores.getOrDefault(idDocumento, 0.0) + scoreParcial);
-                    }
+                for (Map.Entry<Integer, Integer> entradaDoc : oc.getMap().entrySet()) {
+                    Integer idDocumento = entradaDoc.getKey();
+                    double tf = entradaDoc.getValue();
+                    double longitudDoc = longitudesDocs.getOrDefault(idDocumento, 1);
+                    double tfNormalizado = tf / longitudDoc;
+                    double scoreParcial = tfNormalizado * pesoTermino;
+                    scores.put(idDocumento, scores.getOrDefault(idDocumento, 0.0) + scoreParcial);
                 }
             }
         }
@@ -53,22 +28,35 @@ public class MotorBusqueda {
     }
 
     /**
-     * Ranking para el término exacto buscado (sin sinónimos).
+     * Ranking para los términos exactos buscados (sin sinónimos).
      */
-    public List<Map.Entry<Integer, Double>> rankDocumentosSoloTermino(String terminoUsuario, Map<String, Ocurrencia> indice, Map<String, Integer> longitudesDocs) {
-        Set<String> soloTermino = new HashSet<>();
-        soloTermino.add(terminoUsuario);
-        return calcularRanking(soloTermino, indice, longitudesDocs);
+    public List<Map.Entry<Integer, Double>> rankDocumentosSoloTerminos(List<String> terminosConsulta, Map<String, Ocurrencia> indice, Map<String, Integer> longitudesDocs) {
+        return calcularRanking(new HashSet<>(terminosConsulta), indice, longitudesDocs);
     }
 
     /**
-     * Ranking combinado para los sinónimos del término buscado (excluyendo el término original).
+     * Ranking combinado para los sinónimos de todos los términos buscados (excluyendo los términos originales).
      */
-    public List<Map.Entry<Integer, Double>> rankDocumentosSinonimos(String terminoUsuario, Map<String, Ocurrencia> indice, Map<String, Integer> longitudesDocs, Thesauro thesauro) {
-        Set<String> sinonimos = thesauro.getSinonimos(terminoUsuario);
-        if (sinonimos == null || sinonimos.isEmpty()) {
-            return new ArrayList<>();
+    public List<Map.Entry<Integer, Double>> rankDocumentosSinonimos(List<String> terminosConsulta, Map<String, Ocurrencia> indice, Map<String, Integer> longitudesDocs, Thesauro thesauro) {
+        Set<String> todosSinonimos = new HashSet<>();
+        for (String termino : terminosConsulta) {
+            Set<String> sins = thesauro.getSinonimos(termino);
+            if (sins != null) todosSinonimos.addAll(sins);
         }
-        return calcularRanking(sinonimos, indice, longitudesDocs);
+        todosSinonimos.removeAll(terminosConsulta);
+        if (todosSinonimos.isEmpty()) return new ArrayList<>();
+        return calcularRanking(todosSinonimos, indice, longitudesDocs);
+    }
+
+    /**
+     * Ranking combinado de términos + sinónimos (usado por rankDocuments legacy).
+     */
+    public List<Map.Entry<Integer, Double>> rankDocuments(List<String> terminosConsulta, Map<String, Ocurrencia> indice, Map<String, Integer> longitudesDocs, Thesauro thesauro) {
+        Set<String> grupoBusqueda = new HashSet<>(terminosConsulta);
+        for (String termino : terminosConsulta) {
+            Set<String> sins = thesauro.getSinonimos(termino);
+            if (sins != null) grupoBusqueda.addAll(sins);
+        }
+        return calcularRanking(grupoBusqueda, indice, longitudesDocs);
     }
 }

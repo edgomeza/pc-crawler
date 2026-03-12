@@ -151,9 +151,27 @@ public class miBot {
             if (rankingTermino.isEmpty()) {
                 System.out.println("  No se encontraron resultados para \"" + queryOriginal + "\".");
             } else {
+                int totalTerminos = terminosConsulta.size();
+                int grupoActual = -1;
                 int i = 1;
                 for (Map.Entry<Integer, Double> res : rankingTermino) {
-                    System.out.printf("  %d. %s (Score: %.4f)\n", i++, listaURLs.get(res.getKey()), res.getValue());
+                    int termCount = motor.contarTerminosEnDoc(res.getKey(), terminosConsulta, fcp.getMap());
+                    if (termCount != grupoActual) {
+                        grupoActual = termCount;
+                        System.out.println();
+                        if (termCount == totalTerminos) {
+                            System.out.println("  -- Documentos con todos los términos (" + totalTerminos + "/" + totalTerminos + ") --");
+                        } else {
+                            System.out.println("  -- Documentos con " + termCount + " de " + totalTerminos + " términos --");
+                        }
+                    }
+                    List<String> terminosPresentes = new ArrayList<>();
+                    for (String t : terminosConsulta) {
+                        if (fcp.getMap().containsKey(t) && fcp.getMap().get(t).getMap().containsKey(res.getKey())) {
+                            terminosPresentes.add(t);
+                        }
+                    }
+                    System.out.printf("  %d. %s (Score: %.4f) [contiene: %s]\n", i++, listaURLs.get(res.getKey()), res.getValue(), String.join(", ", terminosPresentes));
                     if (i > 10) break;
                 }
             }

@@ -2,6 +2,9 @@ import java.io.*;
 import java.text.Normalizer;
 import java.util.*;
 
+import org.apache.tika.Tika;
+import org.apache.tika.exception.TikaException;
+
 public class FichContPalabras {
     private Map<String, Ocurrencia> map;
 
@@ -60,6 +63,40 @@ public class FichContPalabras {
             pr.println(detalles.toString() + " | Frecuencia total: " + oc.getFtg());
         }
         pr.close();
+    }
+
+    /**
+     * Procesa cualquier fichero soportado por Apache Tika (PDF, DOCX, XLSX,
+     * PPTX, ODT, RTF, MP3, MP4, JPEG, …) extrayendo su texto plano y
+     * alimentando el índice exactamente igual que procesarArchivo().
+     */
+    public int procesarConTika(String fichero, Integer idDocument, Thesauro thesauro)
+            throws IOException, TikaException {
+        Tika tika = new Tika();
+        tika.setMaxStringLength(-1); // sin límite de caracteres
+        String contenido = tika.parseToString(new File(fichero));
+
+        int contadorPalabras = 0;
+        StringTokenizer st = new StringTokenizer(
+            contenido,
+            " ,.:;(){}!°?\t\n\r''%/|[]<=>&#+*$-¨^~"
+        );
+        while (st.hasMoreTokens()) {
+            String s = st.nextToken().toLowerCase();
+            s = Normalizer.normalize(s, Normalizer.Form.NFD);
+            s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+            if (thesauro.tieneSinonimos(s)) {
+                contadorPalabras++;
+                Ocurrencia oc = map.get(s);
+                if (oc == null) {
+                    oc = new Ocurrencia();
+                    map.put(s, oc);
+                }
+                oc.incrementarFtg();
+                oc.agregarFicheroPadre(idDocument);
+            }
+        }
+        return contadorPalabras;
     }
 
     public Map<String, Ocurrencia> getMap() { return map; }

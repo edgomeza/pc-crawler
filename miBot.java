@@ -25,6 +25,27 @@ public class miBot {
             || nombre.endsWith(".java")
             || nombre.endsWith(".log");
     }
+
+    /** Formatos estructurados y semiestructurados procesados vía Apache Tika. */
+    private static boolean esFicheroTika(File f) {
+        String nombre = f.getName().toLowerCase();
+        return nombre.endsWith(".pdf")
+            || nombre.endsWith(".doc")
+            || nombre.endsWith(".docx")
+            || nombre.endsWith(".xls")
+            || nombre.endsWith(".xlsx")
+            || nombre.endsWith(".ppt")
+            || nombre.endsWith(".pptx")
+            || nombre.endsWith(".odt")
+            || nombre.endsWith(".ods")
+            || nombre.endsWith(".odp")
+            || nombre.endsWith(".rtf")
+            || nombre.endsWith(".mp3")
+            || nombre.endsWith(".mp4")
+            || nombre.endsWith(".jpg")
+            || nombre.endsWith(".jpeg")
+            || nombre.endsWith(".png");
+    }
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
             System.out.println("ERROR. Ejecutar: >java miBot nombre_archivo");
@@ -69,14 +90,25 @@ public class miBot {
                         colaProcesamiento.add(h); // Añadimos subcarpetas o archivos a la cola
                     }
                 }
-            } else if (esFicheroTexto(actual)) { 
+            } else if (esFicheroTexto(actual)) {
                 listaURLs.add(actual.getPath());
                 int docId = listaURLs.size();
-                System.out.println("Procesando: " + actual.getName());
+                System.out.println("Procesando (texto): " + actual.getName());
                 int totalPalabras = fcp.procesarArchivo(actual.getPath(), docId - 1, thesauro);
                 longitudesDocs.put(actual.getPath(), totalPalabras);
+            } else if (esFicheroTika(actual)) {
+                listaURLs.add(actual.getPath());
+                int docId = listaURLs.size();
+                System.out.println("Procesando (Tika): " + actual.getName());
+                try {
+                    int totalPalabras = fcp.procesarConTika(actual.getPath(), docId - 1, thesauro);
+                    longitudesDocs.put(actual.getPath(), totalPalabras);
+                } catch (Exception e) {
+                    System.out.println("  [AVISO] No se pudo procesar con Tika: " + actual.getName() + " → " + e.getMessage());
+                    listaURLs.remove(listaURLs.size() - 1); // deshacer el registro
+                }
             } else {
-                System.out.println("Ignorado (no es texto): " + actual.getName());
+                System.out.println("Ignorado (formato no soportado): " + actual.getName());
             }
         }
 

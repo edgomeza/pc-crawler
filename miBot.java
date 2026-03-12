@@ -107,34 +107,68 @@ public class miBot {
 
         System.out.println("\nPara poder salir, introduce '/salir' o deja la línea en blanco:");
         while (true) {
-            String query = System.console().readLine("Introduce un término: ").toLowerCase();
+            String queryOriginal = System.console().readLine("Introduce un término: ");
+            String query = queryOriginal.toLowerCase();
             query = Normalizer.normalize(query, Normalizer.Form.NFD);
             query = query.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-            
+
             if (query.equalsIgnoreCase("/salir")){
-                System.out.println("Cerrando..."); 
+                System.out.println("Cerrando...");
                 break;
             }
 
             if (query.trim().isEmpty()){
-                System.out.println("Cerrando..."); 
+                System.out.println("Cerrando...");
                 break;
             }
-            
-            // Llamada al MotorBusqueda
-            List<Map.Entry<Integer, Double>> ranking = motor.rankDocuments(query, fcp.getMap(), longitudesDocs, thesauro);
 
-            if (ranking.isEmpty()) {
-                System.out.println("No se encontraron coincidencias.");
+            // --- Ranking para el término exacto ---
+            List<Map.Entry<Integer, Double>> rankingTermino = motor.rankDocumentosSoloTermino(query, fcp.getMap(), longitudesDocs);
+
+            // --- Ranking para los sinónimos ---
+            Set<String> sinonimos = thesauro.getSinonimos(query);
+            List<Map.Entry<Integer, Double>> rankingSinonimos = motor.rankDocumentosSinonimos(query, fcp.getMap(), longitudesDocs, thesauro);
+
+            System.out.println();
+            System.out.println("==============================================");
+            System.out.println("  Resultados para: \"" + queryOriginal + "\"");
+            System.out.println("==============================================");
+
+            if (rankingTermino.isEmpty()) {
+                System.out.println("  No se encontraron resultados para \"" + queryOriginal + "\".");
             } else {
                 int i = 1;
-                for (Map.Entry<Integer, Double> res : ranking) {
-                    System.out.printf("%d. %s (Score: %.4f)\n", i++, listaURLs.get(res.getKey()), res.getValue());
+                for (Map.Entry<Integer, Double> res : rankingTermino) {
+                    System.out.printf("  %d. %s (Score: %.4f)\n", i++, listaURLs.get(res.getKey()), res.getValue());
                     if (i > 10) break;
                 }
             }
+
+            if (sinonimos != null && !sinonimos.isEmpty()) {
+                System.out.println();
+                System.out.println("----------------------------------------------");
+                System.out.println("  Quizás también te interese (sinónimos de \"" + queryOriginal + "\"):");
+                System.out.println("  Sinónimos buscados: " + sinonimos);
+                System.out.println("----------------------------------------------");
+
+                if (rankingSinonimos.isEmpty()) {
+                    System.out.println("  No se encontraron resultados para ningún sinónimo.");
+                } else {
+                    int i = 1;
+                    for (Map.Entry<Integer, Double> res : rankingSinonimos) {
+                        System.out.printf("  %d. %s (Score: %.4f)\n", i++, listaURLs.get(res.getKey()), res.getValue());
+                        if (i > 10) break;
+                    }
+                }
+            }
+
+            if (rankingTermino.isEmpty() && rankingSinonimos.isEmpty()) {
+                System.out.println();
+                System.out.println("  No se encontró nada relacionado con \"" + queryOriginal + "\".");
+            }
+
+            System.out.println("==============================================");
             System.out.println();
-            System.out.println("----------------------------------------------");
         }
     }
 }
